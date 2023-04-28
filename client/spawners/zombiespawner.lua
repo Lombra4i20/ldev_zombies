@@ -377,7 +377,6 @@ Citizen.CreateThread(function()
 --				end
 			until canSpawn
 
-			ped = CreatePed(model, newX + 10, newY, newZ, 0.0, true, false)
 			DecorSetBool(ped, "zombie", true)
 			SetPedOutfitPreset(ped, undead.outfit)
 			if _RDConfig.ShowBlips then
