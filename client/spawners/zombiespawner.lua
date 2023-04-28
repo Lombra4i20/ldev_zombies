@@ -9,26 +9,25 @@ local walks = {
 -- zombie spawn amounts in specific zones, default = 15
 
 zombieZones = {
-	BayouNwa = 30,
-	bigvalley = 30,
-	BluewaterMarsh = 30,
-	ChollaSprings = 30,
-	Cumberland = 30,
-	DiezCoronas = 30,
-	GaptoothRidge = 30,
-	greatPlains = 30,
-	GrizzliesEast = 30,
-	GrizzliesWest = 30,
-	GuarmaD = 30,
-	Heartlands = 30,
-	HennigansStead = 30,
-	Perdido = 30,
-	PuntaOrgullo = 30,
-	RioBravo = 30,
-	roanoke = 30,
-	scarlettMeadows = 30,
-	TallTrees = 30,
-	StDenis = 30,
+	BayouNwa = 50,
+	bigvalley = 50,
+	BluewaterMarsh = 50,
+	ChollaSprings = 50,
+	Cumberland = 50,
+	DiezCoronas = 50,
+	GaptoothRidge = 50,
+	greatPlains = 50,
+	GrizzliesEast = 50,
+	GrizzliesWest = 50,
+	GuarmaD = 50,
+	Heartlands = 50,
+	HennigansStead = 50,
+	Perdido = 50,
+	PuntaOrgullo = 50,
+	RioBravo = 50,
+	roanoke = 50,
+	scarlettMeadows = 50,
+	TallTrees = 50,
 }
 
 local pedModels = {
@@ -273,30 +272,22 @@ lastTimePlayerShot = 0
 
 Citizen.CreateThread(function()
 	while true do
-		Wait(2)
+		Wait(1)
 		if IsPedShooting(PlayerPedId()) then
 			lastTimePlayerShot = GetGameTimer()
 		end
 	end
 end)
 
-Citizen.CreateThread(function()
-    while true do
-        local zombieAmount = calculateZombieAmount()
-        -- faça algo com o valor de zombieAmount
-        Citizen.Wait(300000) -- espera 5 minutos antes de executar o loop novamente
-    end
-end)
-
 function calculateZombieAmount()
 	local x, y, z = table.unpack(GetEntityCoords(PlayerPedId(), true))
 	local pedAmount = (zombieZones[ Citizen.InvokeNative(0x43AD8FC02B429D33, x,y,z) ] or 10)
 	if type(zombiepedAmount) ~= "number" then
-		zombiepedAmount = 5
+		zombiepedAmount = 15
 	end
-	zombiepedAmount = math.round((pedAmount/GetPlayersInRadius(500))*1.3)
+	zombiepedAmount = math.round((pedAmount/GetPlayersInRadius(500))*1.2)
 	if lastTimePlayerShot > GetGameTimer()-5000 then
-		zombiepedAmount = math.round(zombiepedAmount*1.3)
+		zombiepedAmount = math.round(zombiepedAmount*1.6)
 	end
 	return zombiepedAmount
 end
@@ -327,16 +318,9 @@ zombies = {}
 peddeletionqueue = {}
 
 Citizen.CreateThread(function()
-	SetPedAsCop(ped, true)
-	SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))			
+	AddRelationshipGroup("zombeez")
 	SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("PLAYER"))
 	SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("zombeez"))
-	SetRelationshipBetweenGroups(5, GetHashKey("zombie"), GetHashKey("PLAYER"))
-	SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("zombie"))
-	SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("zombeez"))
-	SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("PLAYER"))
-    SetPedMaxMoveBlendRatio(npc, 0.1)
-	SetPedCombatMovement(ped ,true)
 	DecorRegister("zombie", 2)
 	DecorRegister("IsBoss", 3)
 
@@ -377,6 +361,7 @@ Citizen.CreateThread(function()
 --				end
 			until canSpawn
 
+			ped = CreatePed(model, newX, newY, newZ, 0.0, true, false)
 			DecorSetBool(ped, "zombie", true)
 			SetPedOutfitPreset(ped, undead.outfit)
 			if _RDConfig.ShowBlips then
@@ -387,7 +372,6 @@ Citizen.CreateThread(function()
 				SetPedMaxHealth(ped, th)
 				SetEntityHealth(ped, th)
 				SetPedSeeingRange(ped, 40.0)
-				SetPedMaxMoveBlendRatio(npc, 0.1)
 				DecorSetInt(ped, "IsBoss", 1)
 			else
 				local th = calculateZombieHealth()
@@ -402,16 +386,8 @@ Citizen.CreateThread(function()
 			SetPedCombatAttributes(ped, 46, true)
 			SetPedCombatMovement(ped, 3)
 			SetPedAsCop(ped, true)
-			SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))			
-			SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("PLAYER"))
-			SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("zombeez"))
-			SetRelationshipBetweenGroups(5, GetHashKey("zombie"), GetHashKey("PLAYER"))
-			SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("zombie"))
-			SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("zombeez"))
-			SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("PLAYER"))			
-			SetPedMaxMoveBlendRatio(npc, 0.1)
-			SetPedCombatMovement(ped ,true)
-			SetPedCombatRange(ped,4)
+			SetPedCombatRange(ped,1)
+			SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))
 			DisablePedPainAudio(ped, true)
 			SetPedIsDrunk(ped, true)
 			SetPedIsDrunk(ped, true)
@@ -432,8 +408,8 @@ Citizen.CreateThread(function()
 		for i, ped in pairs(zombies) do
 			Wait(100)
 			if DoesEntityExist(ped) == false or not NetworkHasControlOfEntity(ped) then
-				Citizen.Wait(100000)
-				table.remove(zombies, i)
+				Wait(5000)
+				--table.remove(zombies, i)
 			end
 			local pedX, pedY, pedZ = table.unpack(GetEntityCoords(ped, true))
 			if IsPedDeadOrDying(ped, true) then
@@ -442,7 +418,7 @@ Citizen.CreateThread(function()
 				-- Set ped as no longer needed for despawning
 				if distancebetweenpedandplayer < 200.0 then
 					table.insert(peddeletionqueue, ped)
-					Citizen.Wait(100000)
+		Wait(5000)
 					table.remove(zombies, i)
 			else
 				playerX, playerY = table.unpack(GetEntityCoords(GetPlayerPed(-1), true))
@@ -461,8 +437,7 @@ Citizen.CreateThread(function()
 					local model = GetEntityModel(ped)
 					DeleteEntity(ped)
 					SetModelAsNoLongerNeeded(model)
-					Citizen.Wait(100000)
-					table.remove(zombies, i) -- the first check takes care of this
+					--table.remove(zombies, i) -- the first check takes care of this
 					end
 				end
 			end
@@ -499,13 +474,13 @@ end)
 
 Citizen.CreateThread(function()
 	while true do
-		Wait(math.random(10000,15000))
+		Wait(math.random(5000,15000))
 		for i, ped in pairs(peddeletionqueue) do
 			local model = GetEntityModel(ped)
 			DeleteEntity(ped)
 			--print("ZombYEET")
 			SetModelAsNoLongerNeeded(model)
-			Citizen.Wait(100000)
+		Wait(5000)
 			table.remove(peddeletionqueue,i)
 		end
 	end
@@ -519,8 +494,7 @@ AddEventHandler("Z:cleanup", function()
 		local model = GetEntityModel(ped)
 		SetModelAsNoLongerNeeded(model)
 		SetEntityAsNoLongerNeeded(ped)
-		
-		Citizen.Wait(100000)
+		Wait(5000)
 		table.remove(zombies, i)
 	end
 end)

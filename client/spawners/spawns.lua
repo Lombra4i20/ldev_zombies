@@ -254,11 +254,8 @@ peddeletionqueue = {}
 
 
 Citizen.CreateThread(function()
-    local zombieLimitPerCity = 50
-    local zombiesPerCity = {}
-    for i = 1, #pedCoords do
-    zombiesPerCity[i] = 0
-end
+    Citizen.Wait(200)
+	TriggerEvent('vorp:ShowTopNotification', "~e~ATENÇÃO", "UMA HORDA DE ZUMBI ESTÁ ENTRANDO EM VALENTINE PARA TOMAR CONTA DA CIDADE", 6000)
 	SetPedAsCop(ped, true)
 	SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))			
 	SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("PLAYER"))
@@ -270,9 +267,9 @@ end
 
 	SetAiMeleeWeaponDamageModifier(2.0)
 
-	while true do				
-        local pedCoords = {
-			{x = -302.91, y = 790.45, z = 118.18}, 
+	while true do		
+		local pedCoords = {
+            {x = -302.91, y = 790.45, z = 118.18}, 
 			{x = -305.96, y = 816.92, z = 119.18}, 
 			{x = -315.55, y = 815.67, z = 122.18}, 
 			{x = -309.01, y = 803.34, z = 122.18}, 
@@ -586,11 +583,8 @@ end
         }
         
         for i, pedCoord in ipairs(pedCoords) do
-
-            if zombiesPerCity[i] < zombieLimitPerCity then
-                undead = pedModels[math.random(1, #pedModels)]
-			model = GetHashKey(undead.model)
-			local playerCoords = GetEntityCoords(PlayerPedId()) -- Obter as coordenadas do jogador
+		undead = pedModels[math.random(1, #pedModels)]
+				model = GetHashKey(undead.model)local playerCoords = GetEntityCoords(PlayerPedId()) -- Obter as coordenadas do jogador
 				local distance = GetDistanceBetweenCoords(playerCoords, pedCoord.x, pedCoord.y, pedCoord.z, true) -- Calcular a distância entre o jogador e o ped
 				
 				if distance <= 100.0 then -- Verificar se a distância é menor ou igual a 100 metros
@@ -631,39 +625,27 @@ end
 					Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, walk[2])
 					StopPedSpeaking(ped,true)
 		
-					TaskWanderStandard(ped, 1.0, 10)
+					TaskWanderStandard(ped, 1.0, 10)-- Executar a ação que deseja fazer com o ped
+					if not NetworkGetEntityIsNetworked(ped) then
+						NetworkRegisterEntityAsNetworked(ped)
+					end		
+					table.insert(zombies, ped)
 				else
 					-- A distância é maior do que 100 metros, não fazer nada
 				end
-           
+          
 
-			if not NetworkGetEntityIsNetworked(ped) then
-				NetworkRegisterEntityAsNetworked(ped)
-			end
-
-			table.insert(zombies, ped)
-		end
-                zombiesPerCity[i] = zombiesPerCity[i] + 1
-                table.insert(zombies, ped)
-            end
-
-            function calculateZombieHealth()
-                if GetClockHours() < 5 or GetClockHours() > 22 then
-                    return math.random(300,500)
-                else
-                    return math.random(180,300)
-                end
-            end
-		
+			
 
 		for i, ped in pairs(zombies) do
 			Wait(100)
 			if DoesEntityExist(ped) == false or not NetworkHasControlOfEntity(ped) then
-				Wait(10000)
+				Citizen.Wait(100000)
 				table.remove(zombies, i)
 			end
 			local pedX, pedY, pedZ = table.unpack(GetEntityCoords(ped, true))
         end		
-            Wait(300000)
+            Wait(3600000)
 			end
-		end)
+		end
+	end)
