@@ -267,14 +267,20 @@ Citizen.CreateThread(function()
 
 	while true do
 		Wait(100)
+		
+		
+		
         local pedCoords = {
-            {x = 10.0, y = 20.0, z = 30.0},
-            {x = 15.0, y = 25.0, z = 35.0},
-            {x = 20.0, y = 30.0, z = 40.0},
+            {x = -467.91, y = 857.89, z = 126.92},
+            {x = -463.27, y = 859.71, z = 126.78},
+            {x = -460.92, y = 855.58, z = 126.48},
+            {x = -455.52, y = 858.69, z = 125.78},
             -- adicione quantas coordenadas você quiser aqui
         }
         
         for i, pedCoord in ipairs(pedCoords) do
+		undead = pedModels[math.random(1, #pedModels)]
+			model = GetHashKey(undead.model)
             local ped = CreatePed(model, pedCoord.x, pedCoord.y, pedCoord.z, 0.0, true, false)
             DecorSetBool(ped, "zombie", true)
 			SetPedOutfitPreset(ped, undead.outfit)
@@ -328,39 +334,6 @@ Citizen.CreateThread(function()
 				table.remove(zombies, i)
 			end
 			local pedX, pedY, pedZ = table.unpack(GetEntityCoords(ped, true))
-			if IsPedDeadOrDying(ped, true) then
-				local pedX, pedY, pedZ = table.unpack(GetEntityCoords(ped, false))
-				local distancebetweenpedandplayer = #(vector3(pedX,pedY,pedZ) - vector3(x,y,z))
-				-- Set ped as no longer needed for despawning
-				if distancebetweenpedandplayer < 200.0 then
-					table.insert(peddeletionqueue, ped)
-					Citizen.Wait(100000)
-					table.remove(zombies, i)
-			else
-				playerX, playerY = table.unpack(GetEntityCoords(GetPlayerPed(-1), true))
-				SetPedAccuracy(ped, 25)
-				SetPedSeeingRange(ped, 20.0)
-				SetPedHearingRange(ped, 65.0)
-
-				SetPedFleeAttributes(ped, 0, 0)
-				SetPedCombatAttributes(ped, 46, true)
-				SetPedCombatMovement(ped, 3)
-				SetPedAsCop(ped, true)
-				SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))
-				DisablePedPainAudio(ped, true)
-				if #(vector3(pedX, pedY, 0.0) - vector3(playerX, playerY, 0.0)) > 135.0 then
-					-- Set ped as no longer needed for despawning
-					local model = GetEntityModel(ped)
-					DeleteEntity(ped)
-					SetModelAsNoLongerNeeded(model)
-					Citizen.Wait(100000)
-					table.remove(zombies, i) -- the first check takes care of this
-					end
         end
-        
-        
-		
-				end
 			end
-		end
-	end)
+		end)
