@@ -1,0 +1,5 @@
+RegisterNetEvent('player:joined')
+AddEventHandler('player:joined', function()
+    SetRelationshipBetweenGroups(5, GetHashKey("PLAYER"), GetHashKey("zombeez"))
+    SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("PLAYER"))
+end)
