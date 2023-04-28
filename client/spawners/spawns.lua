@@ -259,7 +259,6 @@ Citizen.CreateThread(function()
     for i = 1, #pedCoords do
     zombiesPerCity[i] = 0
 end
-    Citizen.Wait(30000)
 	SetPedAsCop(ped, true)
 	SetPedRelationshipGroupHash(ped, GetHashKey("zombeez"))			
 	SetRelationshipBetweenGroups(5, GetHashKey("zombeez"), GetHashKey("PLAYER"))
@@ -350,11 +349,11 @@ end
 		for i, ped in pairs(zombies) do
 			Wait(100)
 			if DoesEntityExist(ped) == false or not NetworkHasControlOfEntity(ped) then
-				Citizen.Wait(100000)
+				Wait(10000)
 				table.remove(zombies, i)
 			end
 			local pedX, pedY, pedZ = table.unpack(GetEntityCoords(ped, true))
         end		
-            Wait(300000)
+            Wait(30000)
 			end
 		end)
