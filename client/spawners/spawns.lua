@@ -337,6 +337,14 @@ end
                 zombiesPerCity[i] = zombiesPerCity[i] + 1
                 table.insert(zombies, ped)
             end
+
+            function calculateZombieHealth()
+                if GetClockHours() < 5 or GetClockHours() > 22 then
+                    return math.random(300,500)
+                else
+                    return math.random(180,300)
+                end
+            end
 		
 
 		for i, ped in pairs(zombies) do
